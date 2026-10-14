@@ -32,7 +32,7 @@ function buildSidebar(activeId) {
   const link = it => `<a href="#${it.id}"${it.id === activeId ? ' class="active" aria-current="page"' : ''}>${it.title}${done.has(it.id) ? '<span class="tick" title="Finished">✓</span>' : ''}</a>`;
   groups.forEach(g => { if (g.items.some(it => it.id === activeId)) openGroups.add(g.name); });
   const next = theme() === 'dark' ? 'light' : 'dark';
-  sidebar.innerHTML = `<div class="brand"><span>CS Visualized</span><button type="button" class="theme-btn" id="themeBtn" aria-label="Switch to ${next} mode" title="Switch to ${next} mode">${next === 'dark' ? '🌙' : '☀️'}</button></div>` +
+  sidebar.innerHTML = `<div class="brand"><span>O(WOW)</span><button type="button" class="theme-btn" id="themeBtn" aria-label="Switch to ${next} mode" title="Switch to ${next} mode">${next === 'dark' ? '🌙' : '☀️'}</button></div>` +
     `<a href="#home"${activeId === 'home' ? ' class="active" aria-current="page"' : ''}>Home</a>` +
     groups.map((g, i) => {
       const open = openGroups.has(g.name), content = g.items.filter(it => !it.index);
@@ -161,7 +161,7 @@ function render() {
   else {
     main.innerHTML = `
       <h1>Hard ideas, one step at a time</h1>
-      <p class="lead">CS Visualized turns tricky computer science concepts into interactive animations. Most pages run in a step player: press Play to watch, pause whenever you like, or step forward and back to see exactly what changes and why. The caption under the animation explains each step.</p>
+      <p class="lead">O(WOW) turns tricky computer science concepts into interactive animations. Most pages run in a step player: press Play to watch, pause whenever you like, or step forward and back to see exactly what changes and why. The caption under the animation explains each step.</p>
       <p class="home-actions"><button type="button" class="btn primary" id="tourBtn">▶ Take the tour (about a minute)</button>
         <span class="progress-note">${done.size} of ${contentIds().length} pages finished</span></p>
       <h2>Visualizations</h2>
