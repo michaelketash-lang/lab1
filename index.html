@@ -3,12 +3,25 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Top-Down Racers</title>
+  <title>CS Visualized</title>
   <link rel="stylesheet" href="./style.css">
 </head>
 <body>
-  <canvas id="game" width="1000" height="640"></canvas>
-  <p>Red: <b>W A S D</b>, item <b>Space</b> &nbsp;|&nbsp; Blue: <b>Arrow keys</b>, item <b>Enter</b> &nbsp;|&nbsp; <b>Space</b> restarts after a win</p>
+  <header class="topbar">
+    <button id="menuBtn" class="btn" aria-label="Open menu" aria-expanded="false">☰</button>
+    <strong>CS Visualized</strong>
+  </header>
+  <nav id="sidebar" aria-label="Categories"></nav>
+  <div id="scrim"></div>
+  <main id="main"></main>
+
+  <script src="./player.js"></script>
+  <script src="./viz/sorting.js"></script>
+  <script src="./viz/pathfinding.js"></script>
+  <script src="./viz/cycle.js"></script>
+  <script src="./viz/bigo.js"></script>
+  <script src="./viz/network.js"></script>
+  <!-- add new visualizations above this line, one file each -->
   <script src="./script.js"></script>
 </body>
 </html>
