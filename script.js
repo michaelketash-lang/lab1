@@ -131,7 +131,8 @@ const page = (title, summary, mount, params, extra = '') => {
   mount(el('viz'));
   applyParams(params);
 };
-const cards = (list, prefix, tag) => list.map(x => `<a class="card" href="#${prefix}${x.id}"><span class="tag">${tag || x.category}</span><h3>${x.title}</h3><p>${x.summary}</p></a>`).join('');
+const ICONS = { Algorithms: '🧮', 'Data structures': '🔗', Fundamentals: '📈', Networking: '🌐', Explainer: '🎬', Algorithm: '🧠' };
+const cards = (list, prefix, tag) => list.map(x => `<a class="card" href="#${prefix}${x.id}"><span class="card-ic" aria-hidden="true">${ICONS[tag || x.category] || '✨'}</span><span class="tag">${tag || x.category}</span><h3>${x.title}</h3><p>${x.summary}</p><span class="go">Open →</span></a>`).join('');
 
 function render() {
   const [id, query] = (location.hash.slice(1) || 'home').split('?'), params = new URLSearchParams(query || '');
@@ -163,16 +164,21 @@ function render() {
   else if (viz) page(viz.title, viz.summary, viz.mount, params);
   else {
     main.innerHTML = `
-      <h1>Hard ideas, one step at a time</h1>
-      <p class="lead">O(WOW) turns tricky computer science concepts into interactive animations. Most pages run in a step player: press Play to watch, pause whenever you like, or step forward and back to see exactly what changes and why. The caption under the animation explains each step.</p>
-      <p class="home-actions"><button type="button" class="btn primary" id="tourBtn">▶ Take the tour (about a minute)</button>
-        <span class="progress-note">${done.size} of ${contentIds().length} pages finished</span></p>
-      <h2>Visualizations</h2>
+      <section class="hero">
+        <div class="hero-mark" aria-hidden="true">O(WOW)</div>
+        <h1>Hard ideas, one step at a time</h1>
+        <p class="lead">O(WOW) turns tricky computer science concepts into interactive animations. Most pages run in a step player: press Play to watch, pause whenever you like, or step forward and back to see exactly what changes and why. The caption under the animation explains each step.</p>
+        <p class="home-actions"><button type="button" class="btn primary" id="tourBtn">▶ Take the tour (about a minute)</button>
+          <a class="btn" href="#interview">🎤 Try Interview mode</a>
+          <span class="progress-note">${done.size} of ${contentIds().length} pages finished</span></p>
+        <ul class="hero-stats"><li><b>${VIZ.length}</b> visualizations</li><li><b>${EXPLAINERS.length}</b> narrated explainers</li><li><b>${ALGORITHMS.length}</b> complex algorithms</li><li>Predict mode · Interview mode</li></ul>
+      </section>
+      <h2 class="section">Visualizations</h2>
       <div class="cards">${cards(VIZ, '')}</div>
-      <h2>Networking Explained</h2>
+      <h2 class="section">Networking Explained</h2>
       <p class="lead">Short animated explainers about how the internet works. Each plays like a short video, and you can turn on Narrate to hear it read aloud. <a href="#networking">See all topics</a></p>
       <div class="cards">${cards(EXPLAINERS, 'networking/', 'Explainer')}</div>
-      <h2>Complex Algorithms</h2>
+      <h2 class="section">Complex Algorithms</h2>
       <p class="lead">Step-by-step walkthroughs of harder algorithms, with the variables and the code on screen and a mode where you predict each step. <a href="#algorithms">See all algorithms</a></p>
       <p class="home-actions"><a class="btn primary" href="#interview">🎤 Practice in Interview mode</a></p>
       <div class="cards">${cards(ALGORITHMS, 'algorithms/', 'Algorithm')}</div>
