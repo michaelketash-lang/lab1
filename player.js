@@ -2,6 +2,7 @@
 //   const player = createStepPlayer(slotElement, (state, index, total) => draw(state), { slow: 1 });
 //   player.setStates([{ caption: 'what is happening', ...anything you need to draw }, ...]);
 // opts.slow stretches the time between steps for visualizations that animate between states.
+// opts.external() -> true means something else (narration) decides when to advance: call player.advance() then.
 // Keyboard: Space = play/pause, Left/Right arrows = step back/forward (for the newest player on the page).
 let activePlayer = null;
 
@@ -33,7 +34,7 @@ function createStepPlayer(slot, onState, opts = {}) {
     </div>`;
   const $ = s => slot.querySelector(s);
   const caption = $('.caption'), count = $('.step-count'), speed = $('input'), playBtn = $('[data-act=play]');
-  let states = [], i = 0, timer = null;
+  let states = [], i = 0, timer = null, playing = false;
 
   const delay = () => (1200 / Math.pow(+speed.value, 1.4)) * (opts.slow || 1); // speed 1 -> 1.2 s per step, 10 -> ~50 ms
 
@@ -46,21 +47,24 @@ function createStepPlayer(slot, onState, opts = {}) {
     $('[data-act=next]').disabled = i === states.length - 1;
     onState(s, i, states.length);
   }
-  function pause() { clearTimeout(timer); timer = null; playBtn.textContent = '▶ Play'; }
-  function tick() {
-    if (!slot.isConnected) return pause(); // the page was navigated away
-    if (i >= states.length - 1) return pause();
+  const last = () => states.length - 1;
+  function pause() { clearTimeout(timer); timer = null; playing = false; playBtn.textContent = '▶ Play'; }
+  function schedule() { clearTimeout(timer); timer = opts.external && opts.external() ? null : setTimeout(advance, delay()); }
+  function advance() {
+    if (!playing) return;
+    if (!slot.isConnected || i >= last()) return pause(); // the page was navigated away, or we are at the end
     i++; show();
-    timer = setTimeout(tick, delay());
+    if (i >= last()) pause(); else schedule();
   }
   function play() {
-    if (i >= states.length - 1) i = 0;
+    if (i >= last()) i = 0;
+    playing = true;
     playBtn.textContent = '⏸ Pause';
     show();
-    timer = setTimeout(tick, delay());
+    schedule();
   }
 
-  playBtn.onclick = () => (timer ? pause() : play());
+  playBtn.onclick = () => (playing ? pause() : play());
   $('[data-act=next]').onclick = () => { pause(); if (i < states.length - 1) { i++; show(); } };
   $('[data-act=back]').onclick = () => { pause(); if (i > 0) { i--; show(); } };
   $('[data-act=reset]').onclick = () => { pause(); i = 0; show(); };
@@ -71,5 +75,13 @@ function createStepPlayer(slot, onState, opts = {}) {
     next: () => $('[data-act=next]').click(),
     back: () => $('[data-act=back]').click(),
   };
-  return { setStates(list) { pause(); states = list; i = 0; show(); } };
+  return {
+    setStates(list) { pause(); states = list; i = 0; show(); },
+    goTo(n) { i = Math.max(0, Math.min(last(), n)); show(); },
+    play() { if (!playing) play(); },
+    advance, // used when narration decides the pace
+    repace() { if (playing) schedule(); },
+    isPlaying: () => playing,
+    current: () => states[i],
+  };
 }
