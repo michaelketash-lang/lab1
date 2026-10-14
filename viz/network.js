@@ -27,7 +27,15 @@
     ['server', 'browser', 6, 'CSS + JS files', 'The server sends the files back.'],
     ['browser', 'browser', 6, '', 'With the HTML and CSS, the browser works out the size and position of every element, then paints the pixels. The page appears! All of this took only a handful of tiny messages, usually well under a second.'],
   ];
-  const states = STEPS.map(([from, to, phase, label, caption], i) => ({ from, to, phase, label, caption, ip: i >= 2, done: i === STEPS.length - 1 }));
+  // steps that have a matching explainer get a "Learn more" link
+  const LINKS = {
+    1: { href: '#networking/dns', text: 'DNS' },
+    3: { href: '#networking/tcp-udp', text: 'TCP vs UDP' },
+    5: { href: '#networking/packets', text: 'What is a packet?' },
+    9: { href: '#networking/http', text: 'How HTTP works' },
+    10: { href: '#networking/json', text: 'What is JSON?' },
+  };
+  const states = STEPS.map(([from, to, phase, label, caption], i) => ({ from, to, phase, label, caption, ip: i >= 2, done: i === STEPS.length - 1, link: LINKS[i] }));
 
   // point on the edge of a node's box, heading towards another node (so the packet starts and stops outside the boxes)
   function edge(a, b) {

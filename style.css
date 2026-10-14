@@ -277,10 +277,60 @@ input[type=range] { accent-color: var(--accent); }
   .jarrow { font-size: .62rem; }
 }
 
+/* "DNS" scene */
+.dname { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 0; margin: 1rem 0 .25rem; font: 700 1.5rem ui-monospace, Menlo, Consolas, monospace; }
+.dname > span { display: inline-flex; flex-direction: column; align-items: center; }
+.dname i { font: normal .7rem system-ui, sans-serif; color: var(--muted); }
+.dname b { padding: 0 .3rem; border-radius: 6px; transition: background .3s; }
+.dname .dot { padding: 0 .05rem; }
+.dname .dot b { padding: 0 .3rem; }
+.dname b.on { background: var(--accent); color: var(--accent-text); }
+.dns { display: block; width: 100%; max-width: 900px; margin: 0 auto; font-family: system-ui, sans-serif; }
+.dns .dwire { stroke: var(--border); stroke-width: 4; }
+.dns .dnode rect { fill: var(--surface); stroke: var(--muted); stroke-width: 2; transition: stroke .3s; }
+.dns .dnode.active rect { stroke: var(--accent); stroke-width: 4; }
+.dns .ntitle { fill: var(--text); font: 700 14px system-ui, sans-serif; text-anchor: middle; }
+.dns .nsub { fill: var(--muted); font: 11px system-ui, sans-serif; text-anchor: middle; }
+.dns .dcache rect { fill: var(--bg); stroke: var(--border); stroke-width: 2; stroke-dasharray: 5 4; transition: fill .3s, stroke .3s; }
+.dns .dcache .ctag { fill: var(--muted); font: 700 10px system-ui, sans-serif; text-anchor: middle; text-transform: uppercase; letter-spacing: .06em; }
+.dns .dcache .cl1, .dns .dcache .cl2, .dns .dcache .cl3 { fill: var(--text); font: 11px ui-monospace, Menlo, Consolas, monospace; text-anchor: middle; }
+.dns .dcache.hit rect, .dns .dcache.store rect { fill: color-mix(in srgb, #16a34a 18%, var(--surface)); stroke: #16a34a; stroke-dasharray: none; }
+.dns .dcache.miss rect { fill: color-mix(in srgb, #dc2626 12%, var(--surface)); stroke: #dc2626; }
+.dns .dchip { opacity: 0; }
+.dns .dchip rect { fill: #6366f1; } .dns .dchip.ref rect { fill: #d97706; } .dns .dchip.ans rect { fill: #16a34a; }
+.dns .dchip text { fill: #fff; font: 700 13px system-ui, sans-serif; text-anchor: middle; }
+
+/* "TCP vs UDP" scene */
+.tu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; padding: .5rem; }
+.tu-grid .tu + .tu { border-left: 2px dashed var(--border); }
+.tu { display: block; width: 100%; font-family: system-ui, sans-serif; }
+@media (max-width: 800px) { .tu-grid { grid-template-columns: 1fr; } .tu-grid .tu + .tu { border-left: 0; border-top: 2px dashed var(--border); padding-top: .5rem; } }
+.tu .htitle { fill: var(--text); font: 700 17px system-ui, sans-serif; text-anchor: middle; }
+.tu .life { stroke: var(--muted); stroke-width: 2; stroke-dasharray: 4 4; }
+.tu .lhead rect { fill: var(--surface); stroke: var(--muted); stroke-width: 2; }
+.tu .lhead text { fill: var(--text); font: 700 13px system-ui, sans-serif; text-anchor: middle; }
+.tu .msg { stroke: var(--text); stroke-width: 2.5; }
+.tu .msg.lost { stroke: #dc2626; stroke-dasharray: 6 4; } .tu .msg.again { stroke: #d97706; }
+.tu .ah { fill: var(--text); }
+.tu .now .msg { opacity: .35; }
+.tu .lbl { fill: var(--text); font: 600 12px system-ui, sans-serif; text-anchor: middle; } .tu .lbl.again { fill: #d97706; }
+.tu .x { fill: #dc2626; font: 700 18px system-ui, sans-serif; text-anchor: middle; }
+.tu .note { fill: var(--muted); font: italic 12px system-ui, sans-serif; } .tu .note.bad { fill: #dc2626; font-style: normal; font-weight: 600; }
+.tu .status { fill: var(--muted); font: 600 13px system-ui, sans-serif; text-anchor: middle; }
+.tu .trayl { fill: var(--text); font: 600 12px system-ui, sans-serif; }
+.tu .slot { fill: none; stroke: var(--border); stroke-width: 2; stroke-dasharray: 4 3; }
+.tu .slot.full { fill: color-mix(in srgb, #16a34a 20%, var(--surface)); stroke: #16a34a; stroke-dasharray: none; }
+.tu .slot.gap { stroke: #dc2626; }
+.tu .slot + text { fill: var(--text); font: 600 12px system-ui, sans-serif; text-anchor: middle; }
+.tu .dot { opacity: 0; }
+.tu .dot circle { fill: var(--accent); stroke: var(--surface); stroke-width: 2; }
+.tu .dot.lost circle { fill: #dc2626; }
+
 /* networking explained: empty topic list */
 .empty { padding: 1.5rem; background: var(--surface); border: 1px dashed var(--border); border-radius: 12px; color: var(--muted); }
 
 /* step player */
+.learn { margin: -.5rem 0 1rem; font-size: .95rem; } .learn[hidden] { display: none; } .learn a { color: var(--accent); font-weight: 600; }
 .hint { margin: .9rem 0 0; font-size: .82rem; color: var(--muted); }
 kbd { font: inherit; font-size: .8em; padding: .05rem .4rem; border: 1px solid var(--border); border-bottom-width: 2px; border-radius: 4px; background: var(--bg); }
 .player { margin-top: 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; }

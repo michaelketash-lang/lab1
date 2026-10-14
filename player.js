@@ -1,6 +1,7 @@
 // Reusable step player. A visualization computes a list of states and hands it over:
 //   const player = createStepPlayer(slotElement, (state, index, total) => draw(state), { slow: 1 });
 //   player.setStates([{ caption: 'what is happening', ...anything you need to draw }, ...]);
+// A state may also have link: { href, text }, shown as "Learn more" under the caption.
 // opts.slow stretches the time between steps for visualizations that animate between states.
 // opts.external() -> true means something else (narration) decides when to advance: call player.advance() then.
 // Keyboard: Space = play/pause, Left/Right arrows = step back/forward (for the newest player on the page).
@@ -22,6 +23,7 @@ function createStepPlayer(slot, onState, opts = {}) {
   slot.innerHTML = `
     <div class="player">
       <p class="caption" aria-live="polite"></p>
+      <p class="learn" hidden></p>
       <div class="player-controls">
         <button class="btn" data-act="reset">↺ Reset</button>
         <button class="btn" data-act="back">‹ Back</button>
@@ -33,7 +35,7 @@ function createStepPlayer(slot, onState, opts = {}) {
       <p class="hint">Keyboard: <kbd>Space</kbd> play / pause, <kbd>←</kbd> <kbd>→</kbd> step back / forward</p>
     </div>`;
   const $ = s => slot.querySelector(s);
-  const caption = $('.caption'), count = $('.step-count'), speed = $('input'), playBtn = $('[data-act=play]');
+  const caption = $('.caption'), learn = $('.learn'), count = $('.step-count'), speed = $('input'), playBtn = $('[data-act=play]');
   let states = [], i = 0, timer = null, playing = false;
 
   const delay = () => (1200 / Math.pow(+speed.value, 1.4)) * (opts.slow || 1); // speed 1 -> 1.2 s per step, 10 -> ~50 ms
@@ -42,6 +44,8 @@ function createStepPlayer(slot, onState, opts = {}) {
     const s = states[i];
     if (!s) return;
     caption.textContent = s.caption || '';
+    learn.hidden = !s.link; // optional { href, text } shown under the caption
+    learn.innerHTML = s.link ? `Learn more: <a href="${s.link.href}">${s.link.text}</a>` : '';
     count.textContent = `Step ${i + 1} / ${states.length}`;
     $('[data-act=reset]').disabled = $('[data-act=back]').disabled = i === 0;
     $('[data-act=next]').disabled = i === states.length - 1;

@@ -110,6 +110,7 @@
     finalOrder.forEach(id => put(chipOf(id), row2(id - 1), { label: quote(PAY[id - 1]), w: 66, cls: id === drop ? 'resent' : '', color: COLORS[id - 1] }));
     snap('Instead, the destination uses the sequence number in each packet’s header to put the packets back in order.', { strips: 2 });
     snap(`The payloads now read ${quote('Meet me at noon!')}: the message is whole again.${drop ? ' Even though a packet was lost on the way, nothing is missing.' : ''} Splitting a message into small numbered packets lets many messages share the same wires, and lets the network route around busy or broken paths.`, { strips: 2 });
+    states[states.length - 1].link = { href: '#networking/tcp-udp', text: 'TCP vs UDP: how lost packets are handled' };
     return states;
   }
 

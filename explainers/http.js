@@ -76,6 +76,7 @@
         ? 'The browser shows the error page from the body. The status code 404 tells the browser, and any other program, what happened without having to read the page. The mistake is in the address, so retrying will not help.'
         : 'The browser shows the error page from the body. The status code 500 says the fault is on the server’s side, not in the request, so trying again later may well work.',
     { chip: '', chipAt: 'browser', view });
+    states[states.length - 1].link = { href: '#networking/json', text: 'What is JSON?, a common format for response bodies' };
     return states;
   }
 
