@@ -45,7 +45,12 @@ h2 { font-size: 1.2rem; margin: 2rem 0 .75rem; }
 #sidebar a:hover { background: var(--bg); }
 #sidebar a.active { background: var(--accent); color: var(--accent-text); }
 main { margin-left: var(--sidebar-w); padding: 2.5rem 2rem 4rem; max-width: 1000px; }
-.topbar, #scrim { display: none; }
+#scrim { display: none; }
+/* the top bar is on every page: on a desktop it only holds the Interview button, on a phone also the menu and the name */
+.topbar { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; justify-content: flex-end; gap: .75rem; margin-left: var(--sidebar-w); padding: .5rem 2rem; background: var(--bg); border-bottom: 1px solid var(--border); }
+.topbar #menuBtn, .topbar .top-brand { display: none; }
+.top-interview { text-decoration: none; display: inline-block; }
+.top-interview[aria-current=page] { box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 35%, transparent); }
 
 /* controls and buttons */
 .btn {
@@ -416,10 +421,10 @@ kbd { font: inherit; font-size: .8em; padding: .05rem .4rem; border: 1px solid v
 
 /* mobile */
 @media (max-width: 800px) {
-  .topbar {
-    display: flex; align-items: center; gap: .75rem; position: sticky; top: 0; z-index: 10;
-    padding: .6rem 1rem; background: var(--surface); border-bottom: 1px solid var(--border);
-  }
+  .topbar { margin-left: 0; padding: .6rem 1rem; background: var(--surface); }
+  .topbar #menuBtn, .topbar .top-brand { display: inline-block; }
+  .top-brand { margin-right: auto; }
+  .top-interview .wide { display: none; }
   #sidebar { transform: translateX(-100%); transition: transform .2s; }
   body.menu-open #sidebar { transform: none; }
   body.menu-open #scrim { display: block; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 15; }

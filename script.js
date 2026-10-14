@@ -140,6 +140,9 @@ function render() {
   const interview = id === 'interview' || id.startsWith('interview/');
   current = viz || topic || algo || id === 'networking' || id === 'algorithms' ? id : interview ? 'interview' : 'home';
   buildSidebar(current);
+  const top = el('topInterview'); // the Interview button in the top bar follows the page you are on
+  top.href = algo ? `#interview/${algo.id}` : '#interview';
+  if (interview) top.setAttribute('aria-current', 'page'); else top.removeAttribute('aria-current');
   closeMenu();
   window.scrollTo(0, 0);
   if (id === 'networking') {
@@ -156,7 +159,7 @@ function render() {
     main.innerHTML = `<div class="page-head"><h1>Interview mode</h1></div><div id="viz"></div>`;
     mountInterview(el('viz'), id.split('/')[1], params, { onPass(algoId) { done.add('algorithms/' + algoId); store.set('done', [...done]); buildSidebar(current); } });
   } else if (topic) page(topic.title, topic.summary, topic.mount, params);
-  else if (algo) page(algo.title, algo.summary, algo.mount, params, `<a class="btn" href="#interview/${algo.id.split('/').pop()}">🎤 Interview mode</a>`);
+  else if (algo) page(algo.title, algo.summary, algo.mount, params);
   else if (viz) page(viz.title, viz.summary, viz.mount, params);
   else {
     main.innerHTML = `
