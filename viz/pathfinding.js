@@ -1,5 +1,6 @@
 // Pathfinding visualization: BFS, DFS and Dijkstra on a grid, played by the step player.
-// A state is { kind: Uint8Array per cell (0 empty, 1 visited, 2 frontier, 3 path, 4 current), caption, visited, pathLen }.
+// A state is { kind: Uint8Array per cell (0 empty, 1 visited, 2 frontier, 3 path, 4 current), caption, visited, pathLen, quiz? }.
+// Race mode combines two searches into { race: true, a, b, caption }.
 (function () {
   const ALGOS = {
     bfs: { name: 'Breadth-first search (BFS)', blurb: 'Explores outward in rings, nearest cells first, using a queue. It always finds a shortest path.' },
@@ -7,6 +8,7 @@
     dijkstra: { name: "Dijkstra's algorithm", blurb: 'Always expands the cell with the smallest known distance from the start. Every step here costs 1, so it explores in the same order as BFS; it only pulls ahead once cells have different costs.' },
   };
   const KIND = ['', 'visited', 'frontier', 'path', 'current'];
+  const SHORT = { bfs: 'BFS', dfs: 'DFS', dijkstra: 'Dijkstra' };
 
   function mount(root) {
     const R = 15, C = matchMedia('(max-width: 800px)').matches ? 19 : 31, N = R * C; // both odd, for the maze
@@ -20,11 +22,18 @@
         </label>
         <button class="btn" id="maze">Random maze</button>
         <button class="btn" id="clear">Clear walls</button>
+        <label class="check"><input id="race" type="checkbox"> Race two algorithms</label>
+        <label id="algoBBox" hidden>Algorithm B
+          <select id="algoB">${Object.entries(ALGOS).map(([k, v]) => `<option value="${k}"${k === 'dfs' ? ' selected' : ''}>${v.name}</option>`).join('')}</select>
+        </label>
       </div>
       <p class="blurb" id="blurb"></p>
       <p class="blurb">Click and drag on the grid to draw walls (start on a wall to erase). Drag the green start or the red end to move them.</p>
-      <div class="stats"><span>Cells visited: <b id="visited">0</b></span><span>Path length: <b id="plen">–</b></span></div>
-      <div class="grid" id="grid" style="--cols:${C}" role="img" aria-label="Pathfinding grid"></div>
+      <div class="stats" id="stats"></div>
+      <div class="grids" id="grids">
+        <div><div class="stage-title" id="gtA" hidden></div><div class="grid" id="grid" style="--cols:${C}" role="img" aria-label="Pathfinding grid"></div></div>
+        <div id="box2" hidden><div class="stage-title" id="gtB"></div><div class="grid" id="grid2" style="--cols:${C}" role="img" aria-label="Second pathfinding grid"></div></div>
+      </div>
       <ul class="legend">
         <li><i class="sw start"></i>Start</li><li><i class="sw end"></i>End</li><li><i class="sw wall"></i>Wall</li>
         <li><i class="sw frontier"></i>Frontier</li><li><i class="sw current"></i>Being visited</li>
@@ -34,7 +43,9 @@
     const $ = id => root.querySelector('#' + id);
     const grid = $('grid');
     grid.innerHTML = Array.from({ length: N }, (_, i) => `<div class="cell" data-i="${i}"></div>`).join('');
-    const cells = grid.children;
+    const cells = grid.children, grid2 = $('grid2');
+    grid2.innerHTML = grid.innerHTML;
+    const cells2 = grid2.children;
 
     function neighbors(i) { // up, right, down, left
       const r = (i / C) | 0, c = i % C, out = [];
@@ -51,13 +62,13 @@
       const frontier = [{ c: start, p: -1, d: 0 }], states = [];
       let count = 0;
       found[start] = 1;
-      const snap = (caption, cur = -1, path = [], pathLen) => {
+      const snap = (caption, cur = -1, path = [], pathLen, quiz) => {
         const kind = new Uint8Array(N);
         frontier.forEach(e => { kind[e.c] = 2; });
         for (let i = 0; i < N; i++) if (visited[i]) kind[i] = 1;
         if (cur >= 0) kind[cur] = 4;
         path.forEach(i => { kind[i] = 3; });
-        states.push({ kind, caption, visited: count, pathLen });
+        states.push({ kind, caption, visited: count, pathLen, quiz });
       };
       snap('Ready. Green is the start and red is the goal. The “frontier” is the set of cells we know about but have not visited yet. Press Play, or step one cell at a time.');
 
@@ -77,7 +88,8 @@
           frontier.push({ c: n, p: c, d: d + 1 });
         }
         const added = frontier.length - before;
-        snap(`Visit ${where(c)}${algo === 'dijkstra' ? ` (distance ${d})` : ''}. ${added} new cell${added === 1 ? '' : 's'} join${added === 1 ? 's' : ''} the frontier (next in line to be visited).`, c);
+        snap(`Visit ${where(c)}${algo === 'dijkstra' ? ` (distance ${d})` : ''}. ${added} new cell${added === 1 ? '' : 's'} join${added === 1 ? 's' : ''} the frontier (next in line to be visited).`, c, [], undefined,
+          { q: `Next the search visits ${where(c)}. How many new cells will join the frontier?`, options: [0, 1, 2, 3, ...(added > 3 ? [4] : [])].map(String), answer: added });
       }
 
       if (!visited[end]) { snap(`No path exists: the end is walled off. ${count} cells were visited.`, -1, [], 'none'); return states; }
@@ -91,17 +103,40 @@
       return states;
     }
 
-    function draw(state) {
+    function paint(list, st) {
       for (let i = 0; i < N; i++) {
-        cells[i].className = 'cell ' + (walls[i] ? 'wall' : i === start ? 'start' : i === end ? 'end' : KIND[state.kind[i]]);
+        list[i].className = 'cell ' + (walls[i] ? 'wall' : i === start ? 'start' : i === end ? 'end' : KIND[st.kind[i]]);
       }
-      $('visited').textContent = state.visited;
-      $('plen').textContent = state.pathLen === undefined ? '–' : state.pathLen;
+    }
+    const len = st => (st.pathLen === undefined ? '–' : st.pathLen);
+    function draw(state) {
+      if (state.race) {
+        paint(cells, state.a); paint(cells2, state.b);
+        $('stats').innerHTML = `<span>${SHORT[$('algo').value]}: visited <b>${state.a.visited}</b>, path <b>${len(state.a)}</b></span><span>${SHORT[$('algoB').value]}: visited <b>${state.b.visited}</b>, path <b>${len(state.b)}</b></span>`;
+      } else {
+        paint(cells, state);
+        $('stats').innerHTML = `<span>Cells visited: <b>${state.visited}</b></span><span>Path length: <b>${len(state)}</b></span>`;
+      }
     }
 
     const player = createStepPlayer($('player'), draw);
-    const run = () => player.setStates(search($('algo').value));
-    $('algo').onchange = () => { $('blurb').textContent = ALGOS[$('algo').value].blurb; run(); };
+    const run = () => {
+      const race = $('race').checked, a = $('algo').value, b = $('algoB').value;
+      $('algoBBox').hidden = $('box2').hidden = !race;
+      $('gtA').hidden = !race; $('gtA').textContent = `A: ${ALGOS[a].name}`; $('gtB').textContent = `B: ${ALGOS[b].name}`;
+      $('grids').classList.toggle('race', race);
+      $('blurb').textContent = race ? 'Both searches get the same walls and take one step per tick. Edit the walls on the first grid; the second follows.' : ALGOS[a].blurb;
+      if (!race) return player.setStates(search(a));
+      const A = search(a), B = search(b), n = Math.max(A.length, B.length);
+      const states = Array.from({ length: n }, (_, k) => {
+        const sa = A[Math.min(k, A.length - 1)], sb = B[Math.min(k, B.length - 1)];
+        return { race: true, a: sa, b: sb, caption: `${SHORT[a]}: ${k < A.length ? sa.caption : 'finished.'}\n${SHORT[b]}: ${k < B.length ? sb.caption : 'finished.'}` };
+      });
+      const ea = A[A.length - 1], eb = B[B.length - 1], say = (n, s) => `${n}: ${s.pathLen === 'none' ? 'no path' : `a path of ${s.pathLen} steps`} after visiting ${s.visited} cells`;
+      states[n - 1].caption = `${say(SHORT[a], ea)}. ${say(SHORT[b], eb)}. ${A.length === B.length ? 'They took the same number of steps.' : `${SHORT[A.length < B.length ? a : b]} finished first.`}`;
+      player.setStates(states);
+    };
+    $('algo').onchange = $('algoB').onchange = $('race').onchange = run;
 
     // drag to draw walls, erase walls, or move the start / end
     let drag = null;

@@ -48,7 +48,7 @@ function createExplainer(slot, draw, opts = {}) {
     draw(s, i, total);
     if (narrating) speak(s.caption);
   }
-  player = createStepPlayer($('.xp-player'), onState, { slow: opts.slow, external: () => narrating });
+  player = createStepPlayer($('.xp-player'), onState, { slow: opts.slow, noSeek: true, external: () => narrating });
 
   // Next topic: the following explainer in the list, or back to the topic list after the last one
   const list = window.EXPLAINERS || [], at = list.findIndex(x => x.id === opts.id), nextTopic = list[at + 1];

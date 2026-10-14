@@ -65,7 +65,7 @@
       const quad = n * n, nlogn = Math.round(n * Math.log2(n));
       $('compare').innerHTML = `At n = ${commas(n)}, O(n²) does <b>${commas(quad)}</b> operations: about <b>${commas(Math.round(quad / nlogn))}×</b> as many as O(n log n) and <b>${commas(n)}×</b> as many as O(n).`;
     }
-    $('n').oninput = draw;
+    $('n').oninput = () => { draw(); document.dispatchEvent(new Event('step-finished')); };
     draw();
   }
 

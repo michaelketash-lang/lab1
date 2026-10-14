@@ -1,5 +1,5 @@
 // Linked list cycle detection (Floyd's tortoise and hare), played by the step player.
-// A state is { slow, fast, caption, rounds, result }. Pointers are node indexes; index n means null.
+// A state is { slow, fast, caption, rounds, result, quiz? }. Pointers are node indexes; index n means null.
 (function () {
   const NAME = i => String.fromCharCode(65 + i);
   const X = i => 20 + i * 84, NODE_Y = 64;
@@ -8,7 +8,7 @@
     const next = i => (i < n - 1 ? i + 1 : cycle ? target : n); // n = null
     let slow = 0, fast = 0, rounds = 0;
     const states = [];
-    const snap = (caption, result = null) => states.push({ slow, fast, caption, rounds, result });
+    const snap = (caption, result = null, quiz) => states.push({ slow, fast, caption, rounds, result, quiz });
     snap(`Both pointers start at the head, node A. Each round, slow (the tortoise) moves 1 node and fast (the hare) moves 2.`);
     for (;;) {
       rounds++;
@@ -22,11 +22,12 @@
       const f2 = next(f1);
       fast = f2;
       if (f2 === n) { snap(`…and then it reaches null. The list ends, so there is no cycle.`, 'none'); break; }
+      const quiz = { q: `Slow is on ${NAME(slow)}. Fast is on ${NAME(f1)} and is about to take its second step. After that step, will slow and fast be on the same node?`, options: ['Yes, they meet', 'No, keep going'], answer: slow === f2 ? 0 : 1 };
       if (slow === fast) {
-        snap(`…and then from ${NAME(f1)} to ${NAME(f2)}. Slow and fast are both on ${NAME(slow)}: they met, so the list has a cycle! Inside a loop, fast gains one step on slow every round, so it must eventually catch up.`, 'cycle');
+        snap(`…and then from ${NAME(f1)} to ${NAME(f2)}. Slow and fast are both on ${NAME(slow)}: they met, so the list has a cycle! Inside a loop, fast gains one step on slow every round, so it must eventually catch up.`, 'cycle', quiz);
         break;
       }
-      snap(`…and then from ${NAME(f1)} to ${NAME(f2)}. Slow is on ${NAME(slow)} and fast is on ${NAME(fast)}: different nodes, so keep going.`);
+      snap(`…and then from ${NAME(f1)} to ${NAME(f2)}. Slow is on ${NAME(slow)} and fast is on ${NAME(fast)}: different nodes, so keep going.`, null, quiz);
     }
     return states;
   }
